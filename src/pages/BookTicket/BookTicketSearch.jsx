@@ -1,20 +1,42 @@
-import { DatePicker } from 'antd';
+import { DatePicker, Select } from 'antd';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { AlertContext } from '../../App';
 import { airportServ } from '../../services/airportServ';
-import { useNavigate } from 'react-router-dom';
 
-const BookTicketSearch = () => {
+const BookTicketSearch = ({
+  arrFlight,
+  airportDeparture,
+  airportDestination,
+  totalPassengersBtK,
+  bookTkAdults,
+  bookTkChildren,
+  bookTkInfants,
+  ticketTypeBtK,
+  ticketClassBtK,
+  onSearchDataChange,
+  departureIdBtK,
+  destinationIdBtK,
+}) => {
   const [showInput, setShowInput] = useState(false);
-  const [ticketType, setTicketType] = useState('one-way');
+  const [ticketType, setTicketType] = useState(ticketTypeBtK);
+  const [adults, setAdults] = useState(bookTkAdults);
+  const [children, setChildren] = useState(bookTkChildren);
+  const [infants, setInfants] = useState(bookTkInfants);
+  const [totalPassengers, setTotalPassengers] = useState(0);
+  const [ticketClass, setTicketClass] = useState('economy');
   const [departureValue, setDepartureValue] = useState('');
   const [destinationValue, setDestinationValue] = useState('');
   const [departureOptions, setDepartureOptions] = useState([]);
   const [destinationOptions, setDestinationOptions] = useState([]);
   const [showDepartureDropdown, setShowDepartureDropdown] = useState(false);
   const [showDestinationDropdown, setShowDestinationDropdown] = useState(false);
+  const [dateStringOnly, setDateStringOnly] = useState('');
+  const [dateRange, setDateRange] = useState([]);
   const [departureId, setDepartureId] = useState('');
   const [destinationId, setDestinationId] = useState('');
+
+  const { handleAlert } = useContext(AlertContext);
 
   const handleDepartureChange = async (event) => {
     const value = event.target.value;
@@ -72,7 +94,25 @@ const BookTicketSearch = () => {
     setDestinationId(option.id);
     setShowDestinationDropdown(false);
   };
-
+  useEffect(() => {
+    setTotalPassengers(totalPassengersBtK);
+    setTicketType(ticketTypeBtK);
+    setAdults(bookTkAdults);
+    setChildren(bookTkChildren);
+    setInfants(bookTkInfants);
+    setDepartureValue(airportDeparture || '');
+    setDestinationValue(airportDestination || '');
+    setDepartureId(departureIdBtK);
+    setDestinationId(destinationIdBtK);
+  }, [
+    bookTkAdults,
+    bookTkChildren,
+    bookTkInfants,
+    airportDeparture,
+    airportDestination,
+    departureIdBtK,
+    destinationIdBtK,
+  ]);
   const inputRef = useRef(null);
   useEffect(() => {
     if (showInput) {
@@ -94,46 +134,62 @@ const BookTicketSearch = () => {
       prevType === 'one-way' ? 'round-trip' : 'one-way'
     );
   };
-  const navigate = useNavigate();
 
-  // const handleBookTicket = () => {
-  //   if (!departureValue || !destinationValue) {
-  //     handleAlert('error', 'Please fill in all required fields');
-  //     return;
-  //   }
+  const handlePassengerChange = (type, value) => {
+    if (value < 0) return;
 
-  //   if (ticketType === 'one-way') {
-  //     if (!dateStringOnly) {
-  //       handleAlert('error', 'Please select the departure date');
-  //       return;
-  //     }
-  //   } else if (ticketType === 'round-trip') {
-  //     if (dateRange.length !== 2) {
-  //       handleAlert('error', 'Please select both departure and return dates');
-  //       return;
-  //     }
-  //   }
+    if (type === 'adults') setAdults(value);
+    if (type === 'children') setChildren(value);
+    if (type === 'infants') setInfants(value);
 
-  //   navigate(`/book-ticket`, {
-  //     state: {
-  //       ticketType,
-  //       departureId,
-  //       destinationId,
-  //       dateStringOnly: ticketType === 'one-way' ? dateStringOnly : null,
-  //       departureDate: ticketType === 'round-trip' ? dateRange[0] : null,
-  //       destinationDate: ticketType === 'round-trip' ? dateRange[1] : null,
-  //       ticketClass,
-  //       totalPassengers,
-  //       adults,
-  //       children,
-  //       infants,
-  //     },
-  //   });
-  // };
+    const newTotal =
+      (type === 'adults' ? value : adults) +
+      (type === 'children' ? value : children) +
+      (type === 'infants' ? value : infants);
+
+    setTotalPassengers(newTotal);
+  };
+
+  const handleBookTicket = () => {
+    if (!departureValue || !destinationValue) {
+      handleAlert('error', 'Please fill in all required fields');
+      return;
+    }
+
+    if (ticketType === 'one-way') {
+      if (!dateStringOnly) {
+        handleAlert('error', 'Please select the departure date');
+        return;
+      }
+    } else if (ticketType === 'round-trip') {
+      if (dateRange.length !== 2) {
+        handleAlert('error', 'Please select both departure and return dates');
+        return;
+      }
+    }
+
+    const searchData = {
+      ticketType,
+      departureId,
+      destinationId,
+      dateStringOnly: ticketType === 'one-way' ? dateStringOnly : null,
+      departureDate: ticketType === 'round-trip' ? dateRange[0] : null,
+      destinationDate: ticketType === 'round-trip' ? dateRange[1] : null,
+      ticketClass,
+      totalPassengers,
+      adults,
+      children,
+      infants,
+    };
+    // console.log(searchData);
+
+    onSearchDataChange(searchData);
+  };
+
   return (
     <div className="book-ticket-card">
       <div className="flex flex-col gap-6">
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           <button
             type="button"
             className="button-change-ticket-type gap-2"
@@ -180,9 +236,12 @@ const BookTicketSearch = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <div className="text-[14px] font-medium leading-5">1</div>
+                <div className="text-[14px] font-medium leading-5">
+                  {totalPassengers == 0 ? totalPassengersBtK : totalPassengers}
+                </div>
                 <i className="fa-solid fa-chevron-down text-[#dcbb87]"></i>
               </button>
+
               {showInput && (
                 <div className="book-ticket-number-input" ref={inputRef}>
                   <div>
@@ -206,6 +265,13 @@ const BookTicketSearch = () => {
                         type="number"
                         autoComplete="on"
                         className="font-normal text-[16px]"
+                        value={adults}
+                        onChange={(e) =>
+                          handlePassengerChange(
+                            'adults',
+                            parseInt(e.target.value)
+                          )
+                        }
                       />
                       <label htmlFor="" className="text-sm">
                         Adults
@@ -233,6 +299,13 @@ const BookTicketSearch = () => {
                         type="number"
                         autoComplete="on"
                         className="font-normal text-[16px]"
+                        value={children}
+                        onChange={(e) =>
+                          handlePassengerChange(
+                            'children',
+                            parseInt(e.target.value)
+                          )
+                        }
                       />
                       <label htmlFor="" className="text-sm">
                         Children
@@ -260,6 +333,13 @@ const BookTicketSearch = () => {
                         type="number"
                         autoComplete="on"
                         className="font-normal text-[16px]"
+                        value={infants}
+                        onChange={(e) =>
+                          handlePassengerChange(
+                            'infants',
+                            parseInt(e.target.value)
+                          )
+                        }
                       />
                       <label htmlFor="" className="text-sm">
                         Infant
@@ -269,6 +349,19 @@ const BookTicketSearch = () => {
                 </div>
               )}
             </div>
+          </div>
+          <div className="flex items-center">
+            <Select
+              style={{ width: 150 }}
+              options={[
+                { value: 'economy', label: 'Economy Class' },
+                { value: 'business', label: 'Business Class' },
+              ]}
+              defaultValue={ticketClassBtK}
+              onChange={(value, label) => {
+                setTicketClass(value);
+              }}
+            />
           </div>
         </div>
         <div className="flex gap-4 book-ticket-input">
@@ -383,6 +476,13 @@ const BookTicketSearch = () => {
                       disabledDate={(current) => {
                         return current && current < moment().startOf('day');
                       }}
+                      onChange={(date, dateString) =>
+                        setDateStringOnly(
+                          moment
+                            .utc(dateString, 'DD-MM-YYYY')
+                            .format('YYYY-MM-DD')
+                        )
+                      }
                     />
                   ) : (
                     <DatePicker.RangePicker
@@ -390,6 +490,15 @@ const BookTicketSearch = () => {
                       format={'DD-MM-YYYY'}
                       disabledDate={(current) => {
                         return current && current < moment().startOf('day');
+                      }}
+                      onChange={(dates, dateStrings) => {
+                        const formattedDateStrings = dateStrings.map(
+                          (dateString) =>
+                            moment
+                              .utc(dateString, 'DD-MM-YYYY')
+                              .format('YYYY-MM-DD')
+                        );
+                        setDateRange(formattedDateStrings);
                       }}
                     />
                   )}
@@ -403,7 +512,7 @@ const BookTicketSearch = () => {
               </div>
             </div>
           </div>
-          <button type="button" className="btn-base">
+          <button type="button" className="btn-base" onClick={handleBookTicket}>
             Search
           </button>
         </div>

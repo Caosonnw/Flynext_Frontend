@@ -6,9 +6,15 @@ export const http = axios.create({
 });
 http.interceptors.request.use((config) => {
   const tokenLocal = localStorage.getItem('LOGIN_USER');
-  const token = JSON.parse(tokenLocal);
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (tokenLocal) {
+    try {
+      const token = JSON.parse(tokenLocal);
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error parsing token:', error);
+    }
   }
   return config;
 });
@@ -20,21 +26,22 @@ http.interceptors.response.use(
   },
   async function (error) {
     console.log(error);
+    console.log(error.response.data.message);
 
     if (
-      error.response.status == 401 &&
-      error.response.data == 'TokenExpiredError'
+      error.response &&
+      error.response.status === 401 &&
+      (error.response.data.message === 'TokenExpiredError' ||
+        error.response.data.message === 'Unauthorized')
     ) {
       try {
-        const token = error.config.headers.Authorization.replace('Bearer ', '');
-        const result = await http.post(`/auth/reset-token`, { token });
+        const result = await http.post(`/auth/reset-token`);
         localStorage.setItem('LOGIN_USER', result.data.data);
         const originalRequest = error.config;
         originalRequest.headers.Authorization = `Bearer ${result.data.data}`;
         return http(originalRequest);
       } catch (error) {
         console.log(error);
-        // Handle logout here
       }
     }
 

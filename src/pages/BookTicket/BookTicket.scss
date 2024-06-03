@@ -178,6 +178,7 @@
       }
     }
     .book-ticket-flight {
+      justify-content: center;
       .book-ticket-filter {
         .filter-side-bar {
           width: 280px;
@@ -220,11 +221,14 @@
           box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.06),
             0px 1px 3px 0px rgba(16, 24, 40, 0.1);
           .collapse-header {
-            border-bottom: 1px solid #eaecf0;
+            border-bottom: none;
             .flight-card-header {
               padding: 16px 24px;
               cursor: pointer;
             }
+          }
+          .collapsed-header-off {
+            border-bottom: 1px solid #eaecf0;
           }
           .collapse-body {
             // height: 751.594px;
@@ -266,6 +270,12 @@
                 background-color: #ffe7c1e0;
                 color: #1d2939;
               }
+            }
+            .collapse-header {
+              border-bottom: none;
+            }
+            .collapse-header-active {
+              border-bottom: 1px solid #eaecf0;
             }
             .flight-card-list {
               padding: 16px 24px;
@@ -340,6 +350,51 @@
                   }
                 }
               }
+              .flight-card-collapse {
+                transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                .flight-card-content {
+                  display: flex;
+                  padding: 24px 88px 24px 88px;
+                  gap: 24px;
+                  .flight-item-card-steps {
+                    display: flex;
+                    padding: 4px 0;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 25px;
+                    .item-card-steps-big-dots {
+                      width: 12px;
+                      height: 12px;
+                      border: 2px solid #eaecf0;
+                      border-radius: 50%;
+                    }
+                    .item-card-steps-small-dots {
+                      width: 4px;
+                      height: 4px;
+                      background-color: #eaecf0;
+                    }
+                  }
+                  .item-card-dots {
+                    width: 4px;
+                    height: 4px;
+                    background-color: #98a2b3;
+                    border-radius: 50%;
+                  }
+                  .flight-logo {
+                    width: 30px;
+                    height: 30px;
+                    position: relative;
+                    overflow: hidden;
+                  }
+                  p {
+                    color: #667085;
+                    font-size: 14px;
+                    line-height: 20px;
+                    font-weight: 400;
+                  }
+                }
+              }
             }
           }
         }
@@ -374,5 +429,32 @@
     .ant-checkbox-inner {
     background-color: #dcbb87;
     border-color: #dcbb87;
+  }
+  .ant-select {
+    .ant-select-selector {
+      &:focus {
+        outline: none;
+      }
+      .ant-select-selection-item {
+        color: rgba(0, 0, 0, 0.45) !important;
+      }
+    }
+  }
+  .ant-select-focused:where(
+      .css-dev-only-do-not-override-17seli4
+    ).ant-select-outlined:not(.ant-select-disabled):not(
+      .ant-select-customize-input
+    ):not(.ant-pagination-size-changer)
+    .ant-select-selector {
+    box-shadow: none;
+  }
+  :where(.css-dev-only-do-not-override-17seli4).ant-select-single {
+    height: 23px;
+  }
+  :where(.css-dev-only-do-not-override-17seli4).ant-select-outlined:not(
+      .ant-select-customize-input
+    )
+    .ant-select-selector {
+    border: none;
   }
 }

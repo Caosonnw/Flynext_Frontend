@@ -21,6 +21,7 @@ const Ticket = () => {
   const [departureId, setDepartureId] = useState('');
   const [destinationId, setDestinationId] = useState('');
   const [ticketClass, setTicketClass] = useState('economy');
+  const [ticketClassLabel, setTicketClassLabel] = useState('Economy Class');
   const [dateStringOnly, setDateStringOnly] = useState('');
   const [dateRange, setDateRange] = useState([]);
 
@@ -116,6 +117,7 @@ const Ticket = () => {
     setDestinationId(option.id);
     setShowDestinationDropdown(false);
   };
+
   const navigate = useNavigate();
 
   const handleBookTicket = () => {
@@ -139,12 +141,15 @@ const Ticket = () => {
     navigate(`/book-ticket`, {
       state: {
         ticketType,
+        airportDeparture: departureValue,
+        airportDestination: destinationValue,
         departureId,
         destinationId,
         dateStringOnly: ticketType === 'one-way' ? dateStringOnly : null,
         departureDate: ticketType === 'round-trip' ? dateRange[0] : null,
         destinationDate: ticketType === 'round-trip' ? dateRange[1] : null,
         ticketClass,
+        ticketClassLabel,
         totalPassengers,
         adults,
         children,
@@ -508,6 +513,7 @@ const Ticket = () => {
                 ]}
                 onChange={(value, label) => {
                   setTicketClass(value);
+                  setTicketClassLabel(label.label);
                 }}
               />
               <label htmlFor="" className="text-sm">

@@ -13,10 +13,12 @@ const FlightList = () => {
     flightServ.getAllFlights().then((res) => {
       const formattedFlights = res.data.data.map((flight) => ({
         ...flight,
-        departure_time: moment(flight.departure_time).format(
-          'DD/MM/YYYY HH:mm A'
-        ),
-        arrival_time: moment(flight.arrival_time).format('DD/MM/YYYY HH:mm A'),
+        departure_time: moment
+          .utc(flight.departure_time)
+          .format('DD/MM/YYYY HH:mm A'),
+        arrival_time: moment
+          .utc(flight.arrival_time)
+          .format('DD/MM/YYYY HH:mm A'),
         price: `${flight.price.toLocaleString({
           style: 'currency',
           currency: 'VND',

@@ -1,10 +1,13 @@
 import { Checkbox } from 'antd';
 import moment from 'moment';
-import React from 'react';
+import React, { useState } from 'react';
 import NotFoundFlight from '../../components/Animation/NotFoundFlight';
 
-const BookTicketContent = ({ arrFlight }) => {
-  // console.log(arrFlight);
+const BookTicketContent = ({ arrFlight, ticketClassLabel, ticketClass }) => {
+  const [dropdownCollapse, setDropdownCollapse] = useState(true);
+  const [flightCollapseStates, setFlightCollapseStates] = useState(
+    arrFlight.map(() => false)
+  );
   const airlines = {
     VN: { src: '/img/VN.png', name: 'Vietnam Airlines' },
     VJ: { src: '/img/VJ.png', name: 'VietJet Air' },
@@ -16,7 +19,36 @@ const BookTicketContent = ({ arrFlight }) => {
     const airlineCode = flightNumber.substring(0, 2);
     return airlines[airlineCode];
   };
+  const calculateTripTime = (departureTime, arrivalTime) => {
+    const departure = new Date(departureTime);
+    const arrival = new Date(arrivalTime);
 
+    const diff = arrival.getTime() - departure.getTime();
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+    return `${hours}h ${minutes}m`;
+  };
+  const calculateTicketPrice = (price, ticketClass) => {
+    if (ticketClass === 'economy') {
+      return (
+        price.toLocaleString({
+          style: 'currency',
+          currency: 'VND',
+        }) + ' VND'
+      );
+    } else if (ticketClass === 'business') {
+      // Áp dụng hệ số 1.05 nếu là vé business
+      const businessPrice = price * 1.05;
+      return (
+        businessPrice.toLocaleString({
+          style: 'currency',
+          currency: 'VND',
+        }) + ' VND'
+      );
+    }
+  };
   return (
     <div className="book-ticket-flight flex gap-14">
       <div className="book-ticket-filter">
@@ -39,14 +71,19 @@ const BookTicketContent = ({ arrFlight }) => {
         </div>
       </div>
       <div className="book-ticket-flight-list flex flex-col gap-4">
-        {arrFlight.length === 0 ? (
+        {arrFlight.length === 0 || arrFlight.length < 0 ? (
           <NotFoundFlight />
         ) : (
           arrFlight.map((flight, index) => (
             <div key={index}>
               {index == 0 && (
                 <div className="book-ticket-flight-item-card">
-                  <div className="collapse-header">
+                  <div
+                    onClick={() => setDropdownCollapse(!dropdownCollapse)}
+                    className={`collapse-header ${
+                      dropdownCollapse ? 'collapsed-header-off' : ''
+                    }`}
+                  >
                     {index === 0 && (
                       <div className="flight-card-header flex gap-4 items-center">
                         <svg
@@ -63,7 +100,7 @@ const BookTicketContent = ({ arrFlight }) => {
                         </svg>
                         <div className="flight-card-details flex flex-col gap-2">
                           <div className="flex gap-2 items-center">
-                            <label className="text-base font-bold">
+                            <label className="text-base font-bold cursor-pointer">
                               {
                                 flight
                                   .airports_flights_departure_airport_idToairports
@@ -71,7 +108,7 @@ const BookTicketContent = ({ arrFlight }) => {
                               }
                             </label>
                             <i className="fa-solid fa-arrow-right"></i>
-                            <label className="text-base font-bold">
+                            <label className="text-base font-bold cursor-pointer">
                               {
                                 flight
                                   .airports_flights_arrival_airport_idToairports
@@ -80,51 +117,78 @@ const BookTicketContent = ({ arrFlight }) => {
                             </label>
                           </div>
                           <p className="font-bold text-[14px]">
-                            {moment(flight.departure_time).format(
-                              'dddd, DD/MM/YYYY'
-                            )}
+                            {moment
+                              .utc(flight.departure_time)
+                              .format('dddd, DD/MM/YYYY')}
                           </p>
                         </div>
-                        <i className="fa-solid fa-plus ml-20 text-[#dcbb87]"></i>
+                        <button
+                          className="text-[#dcbb87]"
+                          type="button"
+                          onClick={() => setDropdownCollapse(!dropdownCollapse)}
+                        >
+                          <i
+                            className={`fa-solid ml-20 ${
+                              dropdownCollapse ? 'fa-plus' : 'fa-minus'
+                            }`}
+                          ></i>
+                        </button>
                       </div>
                     )}
                   </div>
-                  <div className="collapse-body">
-                    <div>
+                  {dropdownCollapse && (
+                    <div className="collapse-body">
                       <div>
-                        {index == 0 && (
-                          <div className="flight-callendar">
-                            <div className="flight-callendar-item">
-                              <div className="flight-callendar-day">Friday</div>
-                              <div className="flight-callendar-date">31</div>
+                        <div>
+                          {index == 0 && (
+                            <div className="flight-callendar">
+                              {Array.from({ length: 5 }, (_, i) => {
+                                const date = moment
+                                  .utc(flight.departure_time)
+                                  .subtract(2, 'days')
+                                  .add(i, 'days');
+                                return (
+                                  <div
+                                    key={i}
+                                    className={`flight-callendar-item ${
+                                      date.isSame(
+                                        moment(flight.departure_time),
+                                        'day'
+                                      )
+                                        ? 'flight-callendar-item-active'
+                                        : ''
+                                    }`}
+                                  >
+                                    <div className="flight-callendar-day">
+                                      {date.format('dddd')}
+                                    </div>
+                                    <div className="flight-callendar-date">
+                                      {date.format('DD')}
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
-                            <div className="flight-callendar-item">
-                              <div className="flight-callendar-day">
-                                Saturday
-                              </div>
-                              <div className="flight-callendar-date">1</div>
-                            </div>
-                            <div className="flight-callendar-item flight-callendar-item-active">
-                              <div className="flight-callendar-day">Sunday</div>
-                              <div className="flight-callendar-date">02</div>
-                            </div>
-                            <div className="flight-callendar-item">
-                              <div className="flight-callendar-day">Monday</div>
-                              <div className="flight-callendar-date">03</div>
-                            </div>
-                            <div className="flight-callendar-item">
-                              <div className="flight-callendar-day">
-                                Tuesday
-                              </div>
-                              <div className="flight-callendar-date">04</div>
-                            </div>
-                          </div>
-                        )}
-                        <div className="flight-card-list flex flex-col gap-4">
-                          {arrFlight.map((flight, index) => (
-                            <div key={index} className="flight-card">
-                              <div>
-                                <div className="flight-item-card flex items-center gap-4">
+                          )}
+                          <div className="flight-card-list flex flex-col gap-4 ">
+                            {arrFlight.map((flight, index) => (
+                              <div key={index} className="flight-card">
+                                <div
+                                  className={`flight-item-card flex items-center gap-4 ${
+                                    flightCollapseStates[index]
+                                      ? 'collapse-header-active'
+                                      : 'collapse-header'
+                                  }`}
+                                  onClick={() => {
+                                    // Thay đổi trạng thái mở hoặc đóng của phần tử được bấm
+                                    const newCollapseStates = [
+                                      ...flightCollapseStates,
+                                    ];
+                                    newCollapseStates[index] =
+                                      !newCollapseStates[index];
+                                    setFlightCollapseStates(newCollapseStates);
+                                  }}
+                                >
                                   <div className="flight-group">
                                     <div className="flex items-center gap-4">
                                       <div className="flight-logo">
@@ -161,7 +225,11 @@ const BookTicketContent = ({ arrFlight }) => {
                                             .format('HH:mm')}
                                         </label>
                                         <p className="text-[14px] font-normal">
-                                          SGN
+                                          {
+                                            flight
+                                              .airports_flights_departure_airport_idToairports
+                                              .airport_code
+                                          }
                                         </p>
                                       </div>
                                       <div className="flight-card-destination">
@@ -171,36 +239,142 @@ const BookTicketContent = ({ arrFlight }) => {
                                             .format('HH:mm')}
                                         </label>
                                         <p className="text-[14px] font-normal">
-                                          HAN
+                                          {
+                                            flight
+                                              .airports_flights_arrival_airport_idToairports
+                                              .airport_code
+                                          }
                                         </p>
                                       </div>
                                     </div>
                                   </div>
                                   <div className="flght-card-price">
                                     <label className="text-[14px] font-bold">
-                                      {flight.price.toLocaleString({
-                                        style: 'currency',
-                                        currency: 'VND',
-                                      }) + ' VND'}
+                                      {calculateTicketPrice(
+                                        flight.price,
+                                        ticketClass
+                                      )}
                                     </label>
                                     <p className="text-[14px] font-normal">
                                       VND
                                     </p>
                                   </div>
-                                  <button type="button" className="btn-choose">
+                                  <button
+                                    type="button"
+                                    className="btn-choose"
+                                    onClick={() => {
+                                      // console.log('Hello ');
+                                    }}
+                                  >
                                     Choose
                                   </button>
                                   <div>
-                                    <i className="fa-solid fa-chevron-down text-[#475467]"></i>
+                                    <button
+                                      type="button"
+                                      className="text-[#475467]"
+                                    >
+                                      <i
+                                        className={`fa-solid ${
+                                          flightCollapseStates[index]
+                                            ? 'fa-chevron-up'
+                                            : 'fa-chevron-down'
+                                        }`}
+                                      ></i>
+                                    </button>
                                   </div>
                                 </div>
+                                {flightCollapseStates[index] && (
+                                  <div className="flight-card-collapse">
+                                    <div>
+                                      <div className="flight-card-content">
+                                        <div className="flex flex-grow gap-[19px]">
+                                          <div className="flight-item-card-steps">
+                                            <div className="item-card-steps-big-dots"></div>
+                                            <div className="item-card-steps-small-dots"></div>
+                                            <div className="item-card-steps-small-dots"></div>
+                                            <div className="item-card-steps-small-dots"></div>
+                                            <div className="item-card-steps-small-dots"></div>
+                                            <div className="item-card-steps-small-dots"></div>
+                                            <div className="item-card-steps-big-dots"></div>
+                                          </div>
+                                          <div className="flex flex-col gap-3 justify-between">
+                                            <div className="flex gap-2 items-center">
+                                              <label className="text-[14px] font-bold cursor-pointer">
+                                                {moment
+                                                  .utc(flight.departure_time)
+                                                  .format('DD/MM/YYYY HH:mm A')}
+                                              </label>
+                                              <div className="item-card-dots"></div>
+                                              <label className="text-[14px] font-bold cursor-pointer">
+                                                {
+                                                  flight
+                                                    .airports_flights_departure_airport_idToairports
+                                                    .airport_code
+                                                }
+                                              </label>
+                                            </div>
+                                            <p className="font-bold text-[14px] text-[#667085]">
+                                              Trip time:&nbsp;
+                                              {calculateTripTime(
+                                                moment.utc(
+                                                  flight.departure_time
+                                                ),
+                                                moment.utc(flight.arrival_time)
+                                              )}
+                                            </p>
+                                            <div className="flex gap-2 items-center">
+                                              <label className="text-[14px] font-bold cursor-pointer">
+                                                {moment
+                                                  .utc(flight.arrival_time)
+                                                  .format('DD/MM/YYYY HH:mm A')}
+                                              </label>
+                                              <div className="item-card-dots"></div>
+                                              <label className="text-[14px] font-bold cursor-pointer">
+                                                {
+                                                  flight
+                                                    .airports_flights_arrival_airport_idToairports
+                                                    .airport_code
+                                                }
+                                              </label>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                          <div className="flight-logo">
+                                            <img
+                                              src={
+                                                getAirlineInfo(
+                                                  flight.flight_number
+                                                ).src
+                                              }
+                                              alt=""
+                                            />
+                                          </div>
+                                          <p>
+                                            Airline:&nbsp;
+                                            {
+                                              getAirlineInfo(
+                                                flight.flight_number
+                                              ).name
+                                            }
+                                          </p>
+                                          <p>Flight: {flight.flight_number}</p>
+                                          <p>Seat class: {ticketClassLabel}</p>
+                                          <p>Plane: 321</p>
+                                          <p>Hand luggage: 1 piece x 12kg</p>
+                                          <p>Checked baggage: 1 piece x 23kg</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>

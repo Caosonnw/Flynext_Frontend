@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { flightServ } from '../../services/flightServ';
 import './BookTicket.scss';
 import BookTicketContent from './BookTicketContent';
@@ -9,15 +9,22 @@ import BookTicketStep from './BookTicketStep';
 
 const BookTicket = () => {
   const [arrFlight, setArrFlight] = useState([]);
+  const [bookTkTotalPassengers, setbookTkTotalPassengers] = useState(0);
+  const [bookTkAdults, setbookTkAdults] = useState(0);
+  const [bookTkChildren, setbookTkChildren] = useState(0);
+  const [bookTkInfants, setbookTkInfants] = useState(0);
   const location = useLocation();
   const {
     ticketType,
+    airportDeparture,
+    airportDestination,
     departureId,
     destinationId,
     dateStringOnly,
     departureDate,
     destinationDate,
     ticketClass,
+    ticketClassLabel,
     totalPassengers,
     adults,
     children,
@@ -26,7 +33,11 @@ const BookTicket = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (ticketType == 'one-way') {
+    setbookTkTotalPassengers(totalPassengers);
+    setbookTkAdults(adults);
+    setbookTkChildren(children);
+    setbookTkInfants(infants);
+    if (ticketType === 'one-way') {
       flightServ
         .getFlightsByDepartureArrival(
           departureId,
@@ -36,7 +47,7 @@ const BookTicket = () => {
         .then((res) => {
           setArrFlight(res.data.data);
         });
-    } else if (ticketType == 'round-trip') {
+    } else if (ticketType === 'round-trip') {
       flightServ
         .getFlightsByDepartureArrival(departureId, destinationId, departureDate)
         .then((res) => {
@@ -45,6 +56,11 @@ const BookTicket = () => {
     }
   }, [location.state]);
 
+  const navigate = useNavigate();
+
+  const handleSearchDataChange = (newState) => {
+    navigate('/book-ticket', { state: newState });
+  };
   return (
     <div className="book-ticket-content">
       <Helmet>
@@ -57,9 +73,26 @@ const BookTicket = () => {
       </div>
       <div className="book-ticket-content section-bg">
         <div className="container flex flex-col gap-10 pb-20 pt-10 px-8 lg:max-w-[1536px] mx-auto">
-          <BookTicketSearch />
+          <BookTicketSearch
+            arrFlight={arrFlight}
+            airportDeparture={airportDeparture}
+            airportDestination={airportDestination}
+            departureIdBtK={departureId}
+            destinationIdBtK={destinationId}
+            ticketTypeBtK={ticketType}
+            ticketClassBtK={ticketClassLabel}
+            totalPassengersBtK={bookTkTotalPassengers}
+            bookTkAdults={bookTkAdults}
+            bookTkChildren={bookTkChildren}
+            bookTkInfants={bookTkInfants}
+            onSearchDataChange={handleSearchDataChange}
+          />
           <BookTicketStep />
-          <BookTicketContent arrFlight={arrFlight} ticketType={ticketType} />
+          <BookTicketContent
+            arrFlight={arrFlight}
+            ticketClassLabel={ticketClassLabel}
+            ticketClass={ticketClass}
+          />
         </div>
       </div>
     </div>
