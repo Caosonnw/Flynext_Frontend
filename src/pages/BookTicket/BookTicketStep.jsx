@@ -1,32 +1,37 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 const BookTicketStep = () => {
+  const { step } = useSelector((state) => state.ticketSlice);
+
+  const steps = [
+    { title: 'Select flight', description: 'Please select a flight' },
+    {
+      title: 'Reservations',
+      description: 'Fill in the information to make a reservation',
+    },
+    { title: 'Payment', description: 'Pay to receive air tickets' },
+  ];
+
   return (
     <div className="book-ticket-step m-auto">
       <div className="step-by-step flex gap-4 items-center">
-        <div className="step-by-step-item flex flex-col gap-4 items-center justify-center text-center">
-          <div className="step-by-step-icon"></div>
-          <div className="step-by-step-body">
-            <p className="sub-headding">Select flight</p>
-            <p className="sub-content">Please select a flight</p>
+        {steps.map((s, index) => (
+          <div
+            key={index}
+            className={`step-by-step-item flex flex-col gap-4 items-center justify-center text-center`}
+          >
+            <div
+              className={`step-by-step-icon ${
+                step === index ? '' : 'step-by-step-icon-non-active'
+              }`}
+            ></div>
+            <div className="step-by-step-body">
+              <p className="sub-headding">{s.title}</p>
+              <p className="sub-content">{s.description}</p>
+            </div>
           </div>
-        </div>
-        <div className="step-by-step-item flex flex-col gap-4 items-center justify-center text-center">
-          <div className="step-by-step-icon"></div>
-          <div className="step-by-step-body">
-            <p className="sub-headding">Reservations</p>
-            <p className="sub-content">
-              Fill in the information to make a reservation
-            </p>
-          </div>
-        </div>
-        <div className="step-by-step-item flex flex-col gap-4 items-center justify-center text-center">
-          <div className="step-by-step-icon"></div>
-          <div className="step-by-step-body">
-            <p className="sub-headding">Payment</p>
-            <p className="sub-content">Pay to receive air tickets</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

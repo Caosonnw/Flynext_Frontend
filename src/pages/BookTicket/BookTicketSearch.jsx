@@ -3,6 +3,8 @@ import moment from 'moment';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AlertContext } from '../../App';
 import { airportServ } from '../../services/airportServ';
+import { useDispatch } from 'react-redux';
+import { setStep } from '../../redux/Slice/ticketSlice';
 
 const BookTicketSearch = ({
   arrFlight,
@@ -25,6 +27,7 @@ const BookTicketSearch = ({
   const [infants, setInfants] = useState(bookTkInfants);
   const [totalPassengers, setTotalPassengers] = useState(0);
   const [ticketClass, setTicketClass] = useState('economy');
+  const [ticketClassLabel, setTicketClassLabel] = useState('Economy Class');
   const [departureValue, setDepartureValue] = useState('');
   const [destinationValue, setDestinationValue] = useState('');
   const [departureOptions, setDepartureOptions] = useState([]);
@@ -150,6 +153,8 @@ const BookTicketSearch = ({
     setTotalPassengers(newTotal);
   };
 
+  const dispatch = useDispatch();
+
   const handleBookTicket = () => {
     if (!departureValue || !destinationValue) {
       handleAlert('error', 'Please fill in all required fields');
@@ -170,6 +175,8 @@ const BookTicketSearch = ({
 
     const searchData = {
       ticketType,
+      airportDeparture,
+      airportDestination,
       departureId,
       destinationId,
       dateStringOnly: ticketType === 'one-way' ? dateStringOnly : null,
@@ -177,12 +184,12 @@ const BookTicketSearch = ({
       destinationDate: ticketType === 'round-trip' ? dateRange[1] : null,
       ticketClass,
       totalPassengers,
+      ticketClassLabel,
       adults,
       children,
       infants,
     };
-    // console.log(searchData);
-
+    dispatch(setStep(0));
     onSearchDataChange(searchData);
   };
 
@@ -360,6 +367,7 @@ const BookTicketSearch = ({
               defaultValue={ticketClassBtK}
               onChange={(value, label) => {
                 setTicketClass(value);
+                setTicketClassLabel(label.label);
               }}
             />
           </div>

@@ -8,9 +8,6 @@ http.interceptors.request.use((config) => {
   const tokenLocal = localStorage.getItem('LOGIN_USER');
   if (tokenLocal) {
     try {
-      // const token = JSON.parse(tokenLocal);
-      // if (token) {
-      // }
       config.headers.Authorization = `Bearer ${tokenLocal}`;
     } catch (error) {
       console.error('Error parsing token:', error);

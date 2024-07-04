@@ -4,7 +4,7 @@ import notFoundFlightAnimation from './../../assets/animation/Animation-Flight-N
 
 const NotFoundFlight = () => {
   return (
-    <div className="ml-[200px]">
+    <div className="mx-auto">
       <Lottie
         style={{ width: '600px' }}
         animationData={notFoundFlightAnimation}

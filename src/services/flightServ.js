@@ -12,4 +12,7 @@ export const flightServ = {
       `/flights/get-by-departure-arrival-departureTime/${departure}/${arrival}/${departureTime}`
     );
   },
+  getFlightById: (id) => {
+    return http.get(`/flights/get-flight-by-id/${id}`);
+  },
 };

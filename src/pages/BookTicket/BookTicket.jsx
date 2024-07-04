@@ -9,6 +9,7 @@ import BookTicketStep from './BookTicketStep';
 
 const BookTicket = () => {
   const [arrFlight, setArrFlight] = useState([]);
+  const [arrFlightDouble, setArrFlightDouble] = useState([]);
   const [bookTkTotalPassengers, setbookTkTotalPassengers] = useState(0);
   const [bookTkAdults, setbookTkAdults] = useState(0);
   const [bookTkChildren, setbookTkChildren] = useState(0);
@@ -48,14 +49,26 @@ const BookTicket = () => {
           setArrFlight(res.data.data);
         });
     } else if (ticketType === 'round-trip') {
-      flightServ
-        .getFlightsByDepartureArrival(departureId, destinationId, departureDate)
-        .then((res) => {
-          setArrFlight(res.data.data);
+      Promise.all([
+        flightServ.getFlightsByDepartureArrival(
+          departureId,
+          destinationId,
+          departureDate
+        ),
+        flightServ.getFlightsByDepartureArrival(
+          destinationId,
+          departureId,
+          destinationDate
+        ),
+      ]).then(([departureFlights, returnFlights]) => {
+        setArrFlightDouble({
+          departure: departureFlights.data.data,
+          return: returnFlights.data.data,
         });
+      });
     }
   }, [location.state]);
-
+  console.log(ticketType);
   const navigate = useNavigate();
 
   const handleSearchDataChange = (newState) => {
@@ -90,8 +103,14 @@ const BookTicket = () => {
           <BookTicketStep />
           <BookTicketContent
             arrFlight={arrFlight}
+            departureFlights={arrFlightDouble.departure}
+            returnFlights={arrFlightDouble.return}
             ticketClassLabel={ticketClassLabel}
             ticketClass={ticketClass}
+            adults={adults}
+            children={children}
+            infants={infants}
+            ticketType={ticketType}
           />
         </div>
       </div>

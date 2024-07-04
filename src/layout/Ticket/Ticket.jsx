@@ -11,19 +11,19 @@ const Ticket = () => {
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [departureValue, setDepartureValue] = useState('');
-  const [destinationValue, setDestinationValue] = useState('');
-  const [departureOptions, setDepartureOptions] = useState([]);
-  const [destinationOptions, setDestinationOptions] = useState([]);
-  const [showDepartureDropdown, setShowDepartureDropdown] = useState(false);
-  const [showDestinationDropdown, setShowDestinationDropdown] = useState(false);
   const [departureId, setDepartureId] = useState('');
   const [destinationId, setDestinationId] = useState('');
   const [ticketClass, setTicketClass] = useState('economy');
   const [ticketClassLabel, setTicketClassLabel] = useState('Economy Class');
   const [dateStringOnly, setDateStringOnly] = useState('');
   const [dateRange, setDateRange] = useState([]);
+  const [departureValue, setDepartureValue] = useState('');
+  const [destinationValue, setDestinationValue] = useState('');
+  const [departureOptions, setDepartureOptions] = useState([]);
+  const [destinationOptions, setDestinationOptions] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDepartureDropdown, setShowDepartureDropdown] = useState(false);
+  const [showDestinationDropdown, setShowDestinationDropdown] = useState(false);
 
   const { handleAlert } = useContext(AlertContext);
 
@@ -119,7 +119,6 @@ const Ticket = () => {
   };
 
   const navigate = useNavigate();
-
   const handleBookTicket = () => {
     if (!departureValue || !destinationValue) {
       handleAlert('error', 'Please fill in all required fields');
