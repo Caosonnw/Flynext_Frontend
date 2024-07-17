@@ -6,6 +6,8 @@ import NotFoundFlightDestination from '../../components/Animation/NotFoundFlight
 import { setStep } from '../../redux/Slice/ticketSlice';
 import BookTicketSideBar from './BookTicketSideBar';
 import BookTicketForm from './BookTicketForm';
+import { jwtDecode } from 'jwt-decode';
+import Payment from './Payment';
 
 const BookTicketContent = ({
   arrFlight,
@@ -37,6 +39,7 @@ const BookTicketContent = ({
   const [flightCollapseStates2, setFlightCollapseStates2] = useState(
     arrFlight.map(() => false)
   );
+
   const { step } = useSelector((state) => state.ticketSlice);
   const calculateTripTime = (departureTime, arrivalTime) => {
     const departure = new Date(departureTime);
@@ -98,7 +101,6 @@ const BookTicketContent = ({
     }
   };
   const dispatch = useDispatch();
-
   const handleBookTicket = (infoFlight, index) => {
     setSelectedFlight(infoFlight);
     setSelectedFlightIndex(index);
@@ -1811,6 +1813,9 @@ const BookTicketContent = ({
       </div>
     ));
   };
+  const token = localStorage.getItem('LOGIN_USER');
+  const decoded = jwtDecode(token);
+  const user_id = decoded.user_id;
 
   return (
     <div className="book-ticket-flight flex justify-between gap-14 mx-10">
@@ -1843,8 +1848,16 @@ const BookTicketContent = ({
               adults={adults}
               children={children}
               infants={infants}
+              selectedFlight={selectedFlight}
+              selectedDepartureFlight={selectedDepartureFlight}
+              selectedReturnFlight={selectedReturnFlight}
+              ticketClassLabel={ticketClassLabel}
+              ticketType={ticketType}
+              user_id={user_id}
             />
           </>
+        ) : step == 2 ? (
+          <Payment />
         ) : null}
       </div>
     </div>

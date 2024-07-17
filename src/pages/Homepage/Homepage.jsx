@@ -5,6 +5,7 @@ import Benefits from '../../layout/Benefits/Benefits';
 import Feedback from '../../layout/Feedback/Feedback';
 import Partner from '../../layout/Partner/Partner';
 import Blog from '../../layout/Blog/Blog';
+import Chatbox from '../../components/ChatBox/ChatBox';
 
 const Homepage = () => {
   return (
@@ -15,6 +16,7 @@ const Homepage = () => {
       <Partner />
       <Feedback />
       <Blog />
+      <Chatbox />
     </>
   );
 };

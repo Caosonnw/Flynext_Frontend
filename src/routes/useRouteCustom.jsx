@@ -14,6 +14,8 @@ import AddFlight from '../pages/AdminPage/AddFlight/AddFlight';
 import NotFound from '../pages/NotFound/NotFound';
 import BookTicket from '../pages/BookTicket/BookTicket';
 import BookTicketTemplate from '../templates/BookTicketTemplate/BookTicketTemplate';
+import ProfilePage from '../pages/ProfilePage/ProfilePage';
+import ChatSupport from '../pages/AdminPage/ChatSupport/ChatSupport';
 
 const useRouteCustom = () => {
   const route = useRoutes([
@@ -51,6 +53,10 @@ const useRouteCustom = () => {
           path: path.admin.addFlight,
           element: <AddFlight />,
         },
+        {
+          path: path.admin.chat,
+          element: <ChatSupport />,
+        },
       ],
     },
     {
@@ -74,6 +80,10 @@ const useRouteCustom = () => {
     {
       path: path.about,
       element: <AboutPage />,
+    },
+    {
+      path: path.profile,
+      element: <ProfilePage />,
     },
     {
       path: '*',

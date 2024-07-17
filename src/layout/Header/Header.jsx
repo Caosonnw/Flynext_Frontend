@@ -58,14 +58,13 @@ const Header = () => {
                 isSearchActive ? 'active' : ''
               }`}
             >
-              <form className="header-search-form" action="#" method="GET">
+              <form className="header-search-form">
                 <input
-                  type="search"
-                  name="keyword"
+                  type="text"
                   id="header_search"
                   placeholder="Search Product..."
                 />
-                <button className="header-search-btn">
+                <button type="button" className="header-search-btn">
                   <i className="fas fa-search" />
                 </button>
               </form>
@@ -78,7 +77,7 @@ const Header = () => {
               </a>
               <ul className="user-sub-menu">
                 <li>
-                  <a href="#">Profile</a>
+                  <Link to={path.profile}>Profile</Link>
                 </li>
                 {userRole === 'ADMIN' && (
                   <li>

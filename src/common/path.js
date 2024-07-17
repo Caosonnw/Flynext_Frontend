@@ -11,7 +11,9 @@ export const path = {
     addFlight: '/admin/add-flight',
     ticket: '/admin/ticket',
     user: '/admin/userList',
+    chat: '/admin/chat',
   },
   bookTicket: '/book-ticket',
+  profile: '/profile',
   test: '/test',
 };

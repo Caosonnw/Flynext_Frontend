@@ -91,6 +91,18 @@ const arrMenu = [
     ],
   },
   {
+    key: 'trungTamHoTro',
+    label: 'Support Center',
+    type: 'group',
+    children: [
+      {
+        key: 'chatbox',
+        label: <Link to={path.admin.chat}>Chat Support</Link>,
+        icon: <i className="fa-brands fa-facebook-messenger"></i>,
+      },
+    ],
+  },
+  {
     key: 'quanliUser',
     label: 'User Management',
     type: 'group',

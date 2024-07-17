@@ -68,7 +68,6 @@ const BookTicket = () => {
       });
     }
   }, [location.state]);
-  console.log(ticketType);
   const navigate = useNavigate();
 
   const handleSearchDataChange = (newState) => {

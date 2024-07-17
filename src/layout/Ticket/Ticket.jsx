@@ -471,7 +471,6 @@ const Ticket = () => {
                   )}
                 </div>
               </div>
-
               <label htmlFor="" className="text-sm">
                 Passenger
               </label>
@@ -650,7 +649,11 @@ const Ticket = () => {
                   </g>{' '}
                 </g>
               </svg>
-              <input type="text" className="font-normal text-[16px]" />
+              <input
+                type="text"
+                className="font-normal text-[16px]"
+                placeholder="Please enter promotion code"
+              />
               <label htmlFor="" className="text-sm">
                 Promotion Code
               </label>

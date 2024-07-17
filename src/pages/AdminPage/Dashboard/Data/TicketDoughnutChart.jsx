@@ -4,14 +4,14 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const UserDoughnutChart = ({ usersLength }) => {
+const TicketDoughnutChart = ({ ticketLength }) => {
   const data = {
-    labels: ['Users'],
+    labels: ['Tickets'],
     datasets: [
       {
-        data: [usersLength],
-        backgroundColor: ['#36a2eb'],
-        hoverBackgroundColor: ['#059BFF'],
+        data: [ticketLength],
+        backgroundColor: ['#ff6384'],
+        hoverBackgroundColor: ['#FF4069'],
       },
     ],
   };
@@ -19,4 +19,4 @@ const UserDoughnutChart = ({ usersLength }) => {
   return <Doughnut data={data} />;
 };
 
-export default UserDoughnutChart;
+export default TicketDoughnutChart;

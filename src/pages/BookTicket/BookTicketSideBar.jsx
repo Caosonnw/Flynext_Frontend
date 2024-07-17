@@ -1,7 +1,8 @@
 import { Checkbox } from 'antd';
 import moment from 'moment';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setTotalPrice } from '../../redux/Slice/ticketSlice';
 
 const BookTicketSideBar = ({
   infoFlight,
@@ -75,7 +76,7 @@ const BookTicketSideBar = ({
       infants,
       ticketClass
     );
-
+    dispatch(setTotalPrice(total));
     return (
       <div className="filter-side-bar flex flex-col">
         <div className="filter-side-bar-header">
@@ -162,13 +163,16 @@ const BookTicketSideBar = ({
           <div className="filter-side-bar-item">
             <div className="flex justify-between gap-[12px] w-full">
               <label className="text-base font-bold">Total</label>
-              <p className="text-[14px] font-bold">{total}</p>
+              <p className="text-[14px] font-bold">
+                {total.toLocaleString('vi-VN')} VND
+              </p>
             </div>
           </div>
         </div>
       </div>
     );
   };
+  const dispatch = useDispatch();
   const renderTicketDetailsDouble = (flightDeparture, flightReturn) => {
     if (!flightDeparture) return null;
 
@@ -191,6 +195,7 @@ const BookTicketSideBar = ({
       ticketClass
     );
     const total = totalDeparture + totalReturn;
+    dispatch(setTotalPrice(total));
     return (
       <div className="filter-side-bar flex flex-col">
         <div className="filter-side-bar-header">
