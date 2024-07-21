@@ -5,7 +5,6 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { flightServ } from '../../../services/flightServ';
 import './ag-grid-theme-builder.css';
-import FlightBarChart from './FlightLineChart';
 
 const FlightList = () => {
   const [flights, setFlights] = useState([]);
@@ -92,6 +91,8 @@ const FlightList = () => {
         className="flight-table"
         rowData={flights}
         columnDefs={columnDefs}
+        pagination={true}
+        paginationPageSize={10}
       />
     </div>
   );

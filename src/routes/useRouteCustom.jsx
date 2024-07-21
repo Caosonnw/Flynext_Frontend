@@ -16,6 +16,8 @@ import BookTicket from '../pages/BookTicket/BookTicket';
 import BookTicketTemplate from '../templates/BookTicketTemplate/BookTicketTemplate';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import ChatSupport from '../pages/AdminPage/ChatSupport/ChatSupport';
+import TicketDashboard from '../pages/AdminPage/TicketDashboard/TicketDashboard';
+import UserList from '../pages/AdminPage/UserList/UserList';
 
 const useRouteCustom = () => {
   const route = useRoutes([
@@ -56,6 +58,14 @@ const useRouteCustom = () => {
         {
           path: path.admin.chat,
           element: <ChatSupport />,
+        },
+        {
+          path: path.admin.ticketDashboard,
+          element: <TicketDashboard />,
+        },
+        {
+          path: path.admin.user,
+          element: <UserList />,
         },
       ],
     },

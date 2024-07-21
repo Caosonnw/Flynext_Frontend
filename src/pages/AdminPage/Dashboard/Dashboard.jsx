@@ -39,10 +39,21 @@ const Dashboard = () => {
           </Card>
         </div>
         <div className="dashboard-header-content">
-          <Card>Hello</Card>
+          <Card>
+            <h2 className="font-bold text-[16px] flex justify-center items-center gap-1">
+              <i className="fa-solid fa-user"></i>Number of Users: {usersLength}
+            </h2>
+            <UserDoughnutChart usersLength={usersLength} />
+          </Card>
         </div>
         <div className="dashboard-header-content">
-          <Card>Hello</Card>
+          <Card>
+            <h2 className="font-bold text-[16px] flex justify-center items-center gap-1">
+              <i className="fa-solid fa-ticket"></i>Number of tickets booked:{' '}
+              {ticketLength}
+            </h2>
+            <TicketDoughnutChart ticketLength={ticketLength} />
+          </Card>
         </div>
       </div>
     </div>

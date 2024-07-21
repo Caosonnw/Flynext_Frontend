@@ -52,6 +52,14 @@ const Chatbox = () => {
     }
   };
 
+  useEffect(() => {
+    const elChatConversation = document.querySelector(
+      '.chat-conversation-chat-box'
+    );
+    if (!elChatConversation) return;
+    elChatConversation.scrollTop = elChatConversation.scrollHeight;
+  }, [dataChat]);
+
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       sendMessage();
@@ -83,13 +91,13 @@ const Chatbox = () => {
             </button>
           </div>
           <div className="flex flex-col h-[400px]">
-            <div className="flex-grow overflow-y-auto">
+            <div className="chat-conversation-chat-box flex-grow overflow-y-auto">
               <div className="flex flex-col space-y-4 mr-2">
                 {dataChat &&
                   dataChat.map((chat, i) => {
                     return (
                       <Fragment key={i}>
-                        {chat.user_id === user_id ? (
+                        {chat.user_id !== user_id ? (
                           <div className="self-start bg-gray-200 text-black p-2 rounded-lg max-w-xs">
                             {chat.content}
                           </div>

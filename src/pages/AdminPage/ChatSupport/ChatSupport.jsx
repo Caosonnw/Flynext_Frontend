@@ -1,23 +1,28 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { friendServ } from '../../../services/friendServ';
+import { Avatar } from 'antd';
 
 const socket = io('ws://localhost:8081');
 
 const ChatSupport = () => {
   const [user_id, setUserId] = useState(null);
+  const [listFriends, setListFriends] = useState([]);
   const [dataChat, setDataChat] = useState(null);
+  const [selectedFriendId, setSelectedFriendId] = useState(null);
 
   useEffect(() => {
-    friendServ
-      .getFriendByUserId(user_id)
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    if (user_id !== null) {
+      friendServ
+        .getFriendByUserId(user_id)
+        .then((res) => {
+          setListFriends(res.data.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }, [user_id]);
 
   useEffect(() => {
@@ -26,7 +31,7 @@ const ChatSupport = () => {
       const decoded = jwtDecode(token);
       setUserId(decoded.user_id);
     }
-    //load danh sách chat
+    // Load danh sách chat
     socket.on('load-chat', (lstChat) => {
       setDataChat(lstChat);
     });
@@ -35,6 +40,26 @@ const ChatSupport = () => {
       setDataChat((prevData) => [...prevData, data]);
     });
   }, []);
+
+  useEffect(() => {
+    if (selectedFriendId !== null) {
+      const to = selectedFriendId;
+      const from = user_id;
+      const roomId = to > from ? `${from}-${to}` : `${to}-${from}`;
+      localStorage.setItem('roomId', roomId);
+      socket.emit('join-room', roomId);
+    }
+  }, [selectedFriendId, user_id]);
+
+  const handleFriendClick = (friendId) => {
+    setSelectedFriendId(friendId);
+  };
+
+  useEffect(() => {
+    const elChatConversation = document.querySelector('.chat-conversation');
+    if (!elChatConversation) return;
+    elChatConversation.scrollTop = elChatConversation.scrollHeight;
+  }, [dataChat]);
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -55,133 +80,85 @@ const ChatSupport = () => {
 
   return (
     <>
-      <div className="grid md:grid-cols-[300px_1fr] h-[550px] w-full">
+      <div className="grid md:grid-cols-[300px_1fr] h-[580px] w-full">
         <div className="bg-[white] border-r flex flex-col">
           <div className="bg-white top-0 border-b p-4">
             <h2 className="text-lg font-semibold">Customer</h2>
           </div>
-          {/* List Customer  */}
+          {/* List Friends */}
           <div className="flex-1 h-[700px] overflow-y-auto">
             <div className="p-4 grid gap-4">
-              <div className="flex items-center gap-3">
-                <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10">
-                  <img
-                    className="aspect-square h-full w-full"
-                    src="/placeholder-user.jpg"
-                  />
-                </span>
-                <div className="flex-1">
-                  <p className="font-medium">John Doe</p>
-                  <p className="text-sm text-muted-foreground">Active 2m ago</p>
+              {listFriends.map((friend, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 hover:bg-gray-50 p-3 rounded-lg cursor-pointer"
+                  onClick={() =>
+                    handleFriendClick(
+                      friend.users_user_friends_friend_idTousers.user_id
+                    )
+                  }
+                >
+                  <span className="relative flex shrink-0 overflow-hidden">
+                    <Avatar size={45}>
+                      {friend.users_user_friends_friend_idTousers.full_name}
+                    </Avatar>
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-medium text-[#dcbb87] text-[17px]">
+                      {friend.users_user_friends_friend_idTousers.full_name}
+                    </p>
+                    <p className="text-[13px] text-muted-foreground">
+                      Active recently
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10">
-                  <img
-                    className="aspect-square h-full w-full"
-                    src="/placeholder-user.jpg"
-                  />
-                </span>
-                <div className="flex-1">
-                  <p className="font-medium">Sarah Anderson</p>
-                  <p className="text-sm text-muted-foreground">Active 5m ago</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10">
-                  <img
-                    className="aspect-square h-full w-full"
-                    src="/placeholder-user.jpg"
-                  />
-                </span>
-                <div className="flex-1">
-                  <p className="font-medium">Michael Johnson</p>
-                  <p className="text-sm text-muted-foreground">
-                    Active 10m ago
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
-        {/* Chat  */}
+        {/* Chat */}
         <div className="flex flex-col overflow-y-auto">
           <div className="top-0 border-b p-4 bg-background">
             <h2 className="text-lg font-semibold">Chat</h2>
           </div>
-          <div className="flex-1 overflow-auto p-4 grid gap-4">
-            <div className="flex items-start justify-start gap-4">
-              <span className="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
-                <img
-                  className="aspect-square h-full w-full"
-                  src="/placeholder-user.jpg"
-                />
-              </span>
-              <div className="grid gap-1 text-sm">
-                <p className="font-medium">John Doe</p>
-                <div className="prose text-muted-foreground">
-                  <p>Hey everyone, how's it going?</p>
+          <div className="chat-conversation flex-1 overflow-auto p-4 grid gap-4">
+            {dataChat &&
+              dataChat.map((chat, index) => (
+                <div
+                  key={index}
+                  className={`flex gap-4 mb-4 ${
+                    chat.user_id === user_id ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`flex gap-2 ${
+                      chat.user_id === user_id ? 'flex-row-reverse' : ''
+                    }`}
+                  >
+                    <span className="relative flex shrink-0 overflow-hidden">
+                      {chat.users && (
+                        <Avatar size={45}>{chat.users.full_name}</Avatar>
+                      )}
+                    </span>
+                    <div className="grid gap-1 text-sm max-w-[80%]">
+                      <p className="font-medium text-[13px]">
+                        {chat.users && chat.users.full_name}
+                      </p>
+                      <div
+                        className={`prose text-muted-foreground p-3 rounded-lg ${
+                          chat.user_id === user_id
+                            ? 'bg-gray-100'
+                            : 'bg-[#dcbb87]'
+                        }`}
+                      >
+                        <p>{chat.content}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex items-start justify-start gap-4">
-              <span className="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
-                <img
-                  className="aspect-square h-full w-full"
-                  src="/placeholder-user.jpg"
-                />
-              </span>
-              <div className="grid gap-1 text-sm">
-                <p className="font-medium">John Doe</p>
-                <div className="prose text-muted-foreground">
-                  <p>Hey everyone, how's it going?</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start justify-start gap-4">
-              <span className="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
-                <img
-                  className="aspect-square h-full w-full"
-                  src="/placeholder-user.jpg"
-                />
-              </span>
-              <div className="grid gap-1 text-sm">
-                <p className="font-medium">John Doe</p>
-                <div className="prose text-muted-foreground">
-                  <p>Hey everyone, how's it going?</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-end justify-end gap-4">
-              <span className="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
-                <img
-                  className="aspect-square h-full w-full"
-                  src="/placeholder-user.jpg"
-                />
-              </span>
-              <div className="grid gap-1 text-sm">
-                <p className="font-medium">Michael Johnson</p>
-                <div className="prose text-muted-foreground">
-                  <p>Hey guys, I have a question about the new feature.</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-end justify-end gap-4">
-              <span className="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
-                <img
-                  className="aspect-square h-full w-full"
-                  src="/placeholder-user.jpg"
-                />
-              </span>
-              <div className="grid gap-1 text-sm">
-                <p className="font-medium">Michael Johnson</p>
-                <div className="prose text-muted-foreground">
-                  <p>Hey guys, I have a question about the new feature.</p>
-                </div>
-              </div>
-            </div>
+              ))}
           </div>
-          {/* Bottom  */}
+          {/* Bottom */}
           <div className="sticky bottom-0 border-t p-4 bg-white">
             <div className="relative">
               <textarea
@@ -194,7 +171,8 @@ const ChatSupport = () => {
               <button
                 onClick={sendMessage}
                 id="btn-send"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium  transition-colors hover:bg-[#dcbb87] bg-primary text-primary-foreground absolute w-8 h-8 top-3 right-3"
+                type="button"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors hover:bg-[#dcbb87] bg-primary text-primary-foreground absolute w-8 h-8 top-3 right-3"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

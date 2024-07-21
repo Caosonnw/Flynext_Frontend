@@ -151,6 +151,11 @@ const BookedFlights = ({ userId }) => {
                   {ticket.total_price.toLocaleString('vi-VN')} VND
                 </p>
               </div>
+              <div>
+                <button className="text-lg btn-base !rounded-md !leading-5">
+                  Ticket Cancellation
+                </button>
+              </div>
               {ticket.status === 'booked' && (
                 <div>
                   <button className="text-lg btn-base !rounded-md !leading-5">

@@ -85,7 +85,7 @@ const arrMenu = [
     children: [
       {
         key: 'ticketList',
-        label: <Link to={path.admin.base}>Ticket List</Link>,
+        label: <Link to={path.admin.ticketDashboard}>Ticket List</Link>,
         icon: <img src="/img/ticket-flight.png" alt="ticket" />,
       },
     ],
@@ -109,7 +109,7 @@ const arrMenu = [
     children: [
       {
         key: 'quanLiNguoiDung',
-        label: <Link to={path.admin.base}>User List</Link>,
+        label: <Link to={path.admin.user}>User List</Link>,
         icon: <i className="fa-solid fa-users"></i>,
       },
     ],
